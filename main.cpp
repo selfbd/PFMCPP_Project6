@@ -25,6 +25,7 @@ send me a DM to check your pull request
 
 #include <iostream>
 #include <string>
+
 struct T
 {
     float value;
@@ -34,29 +35,24 @@ struct T
 
 struct MinHeight
 {
-    T* compare(T* a, T* b)
+    T& compare(T& a, T& b)
     {
-        if (a != nullptr && b != nullptr)
-        {
-            if( a->value < b->value ) return a;
-            if( a->value > b->value ) return b;
-        }
-        return nullptr;
+        /*  B. Self, 4/12/2020
+        Suggesting scenario of both values being equal is outside the scope of this exercise.
+        If this case was relevant however, might handle using epsilon check such as the following:
+        if (std::abs(a.value - b.value) < 0.001f)       // handle case of both values being equal
+        */
+        return (a.value < b.value) ? a : b;
     }
 };
 
 struct U
 {
     float setpoint {0}, processVariable {0};
-    
-    float controlMF(float* setpointTarget)
+
+    float controlMF(float & setpointTarget)
     {
-        if (setpointTarget == nullptr)
-        {
-            std::cout << "setpointTarget is null" << std::endl;
-            return 0.f;
-        }
-        this->setpoint = *setpointTarget;
+        this->setpoint = setpointTarget;
         std::cout << "U's setpoint updated value: " << this->setpoint << std::endl;
         while(std::abs(this->processVariable - this->setpoint) > 0.001f )
         {
@@ -69,63 +65,42 @@ struct U
 
 struct Controller
 {
-    static float control(U* that, float* setpointTarget)
+    static float control(U& that, float& setpointTarget)
     {
-        if (that == nullptr)
+        std::cout << "U's setpoint value: " << that.setpoint << std::endl;
+        that.setpoint = setpointTarget;
+        std::cout << "U's setpoint updated value: " << that.setpoint << std::endl;
+        while(std::abs(that.processVariable - that.setpoint) > 0.001f )
         {
-            std::cout << "Control point input is null" << std::endl;
-            return 0.f;
+            that.processVariable += (std::abs(that.processVariable - that.setpoint))/2 ;
         }
-        if (setpointTarget == nullptr)
-        {
-            std::cout << "setpointTarget is null" << std::endl;
-            return 0.f;
-        }
-        std::cout << "U's setpoint value: " << that->setpoint << std::endl;
-        that->setpoint = *setpointTarget;
-        std::cout << "U's setpoint updated value: " << that->setpoint << std::endl;
-        while(std::abs(that->processVariable - that->setpoint) > 0.001f )
-        {
-            that->processVariable += (std::abs(that->processVariable - that->setpoint))/2 ;
-        }
-        std::cout << "U's processVariable updated value: " << that->processVariable << std::endl;
-        return that->processVariable * that->setpoint;
+        std::cout << "U's processVariable updated value: " << that.processVariable << std::endl;
+        return that.processVariable * that.setpoint;
     }
 };
 
 int main()
 {
     T person1(76, "Neil");
+    T& person1Ref = person1;
     T person2(70, "Geddy");
-    
+    T& person2Ref = person2;
+
     std::cout << std::endl;
     MinHeight f;
-    auto* smaller = f.compare(&person1, &person2);
-    if (smaller == nullptr)
-    {
-        std::cout << "Compare result is null" << std::endl;
-    }
-    else
-    {
-        std::cout << "the smaller one is " << smaller->name << std::endl;
-    }
+    auto& smaller = f.compare(person1Ref, person2Ref);
+    std::cout << "the smaller one is " << smaller.name << std::endl;
 
     std::cout << std::endl;
     U controlPoint1;
+    U& controlPoint1Ref = controlPoint1;
     float updatedValue = 5.f;
-    std::cout << "Controller::control controlPoint1's multiplied values:\n" << Controller::control(&controlPoint1, &updatedValue) << std::endl;
-    
+    float& updatedValueRef = updatedValue;
+    std::cout << "Controller::control controlPoint1's multiplied values:\n" << Controller::control(controlPoint1Ref, updatedValueRef) << std::endl;
+
     std::cout << std::endl;    
     U controlPoint2;
-    std::cout << "controlMF controlPoint2's multiplied values:\n" << controlPoint2.controlMF(&updatedValue) << std::endl;
+    std::cout << "controlMF controlPoint2's multiplied values:\n" << controlPoint2.controlMF(updatedValueRef) << std::endl;
 
     std::cout << std::endl;
 }
-
-        
-        
-        
-        
-        
-        
-        
