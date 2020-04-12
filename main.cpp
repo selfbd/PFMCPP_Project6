@@ -41,7 +41,7 @@ Purpose:  This project will show you the difference between member functions and
  9) correct the cout that uses bigger's member variable with some safe pointer usage.
          the possible return values of the compare() function should give you a hint.
  
- 10) complete the implementation for the static function in <structName2>
+10) complete the implementation for the static function in <structName2>
  
  11) call the <structName2> static function correctly in main()
  
@@ -64,64 +64,99 @@ send me a DM to check your pull request
 #include <string>
 struct T
 {
-    T(<#type name#> v, const char* <#variable name#>)   //1
-    //2
-    //3
+    float value;
+    std::string name;
+    T(float v, const char* n) : value (v), name(n) {}
 };
 
-struct <#structName1#>                                //4
+struct MinHeight
 {
-    <#type name#> compare(<#type name#> a, <#type name#> b) //5
+    T* compare(T* a, T* b)
     {
-        if( a->value < b->value ) return a;
-        if( a->value > b->value ) return b;
+        if (a != nullptr && b != nullptr)
+        {
+            if( a->value < b->value ) return a;
+            if( a->value > b->value ) return b;
+        }
         return nullptr;
     }
 };
 
 struct U
 {
-    float <#name1#> { 0 }, <#name2#> { 0 };
-    <#returnType#> <#memberFunction#>(<#type name#>* <#updatedValue#>)      //12
+    float setpoint {0}, processVariable {0};
+    
+    float controlMF(float* setpointTarget)
     {
-        
+        if (setpointTarget == nullptr)
+        {
+            std::cout << "setpointTarget is null" << std::endl;
+            return 0.f;
+        }
+        this->setpoint = *setpointTarget;
+        std::cout << "U's setpoint updated value: " << this->setpoint << std::endl;
+        while(std::abs(this->processVariable - this->setpoint) > 0.001f )
+        {
+            this->processVariable += (std::abs(this->processVariable - this->setpoint))/2 ;
+        }
+        std::cout << "U's processVariable updated value: " << this->processVariable << std::endl;
+        return this->processVariable * this->setpoint;
     }
 };
 
-struct <#structname2#>
+struct Controller
 {
-    static <#returntype#> <#staticFunctionA#>(U* that, <#type name#>* <#updatedValue#> )        //10
+    static float control(U* that, float* setpointTarget)
     {
-        std::cout << "U's <#name1#> value: " << that-><#name1#> << std::endl;
-        that-><#name1#> = <#updatedValue#>;
-        std::cout << "U's <#name1#> updated value: " << that-><#name1#> << std::endl;
-        while( std::abs(that-><#name2#> - that-><#name1#>) > 0.001f )
+        if (that == nullptr)
         {
-            /*
-             write something that makes the distance between that-><#name2#> and that-><#name1#> get smaller
-             */
-            that-><#name2#> += ;
+            std::cout << "Control point input is null" << std::endl;
+            return 0.f;
         }
-        std::cout << "U's <#name2#> updated value: " << that-><#name2#> << std::endl;
-        return that-><#name2#> * that-><#name1#>;
+        if (setpointTarget == nullptr)
+        {
+            std::cout << "setpointTarget is null" << std::endl;
+            return 0.f;
+        }
+        std::cout << "U's setpoint value: " << that->setpoint << std::endl;
+        that->setpoint = *setpointTarget;
+        std::cout << "U's setpoint updated value: " << that->setpoint << std::endl;
+        while(std::abs(that->processVariable - that->setpoint) > 0.001f )
+        {
+            that->processVariable += (std::abs(that->processVariable - that->setpoint))/2 ;
+        }
+        std::cout << "U's processVariable updated value: " << that->processVariable << std::endl;
+        return that->processVariable * that->setpoint;
     }
 };
-        
+
 int main()
 {
-    T <#name1#>( , );                                             //6
-    T <#name2#>( , );                                             //6
+    T person1(76, "Neil");
+    T person2(70, "Geddy");
     
-    <#structName1#> f;                                            //7
-    auto* smaller = f.compare( , );                              //8
-    std::cout << "the smaller one is << " << smaller->name << std::endl; //9
-    
-    U <#name3#>;
+    std::cout << std::endl;
+    MinHeight f;
+    auto* smaller = f.compare(&person1, &person2);
+    if (smaller == nullptr)
+    {
+        std::cout << "Compare result is null" << std::endl;
+    }
+    else
+    {
+        std::cout << "the smaller one is " << smaller->name << std::endl;
+    }
+
+    std::cout << std::endl;
+    U controlPoint1;
     float updatedValue = 5.f;
-    std::cout << "[static func] <#name3#>'s multiplied values: " << <#structname2#>::<#staticFunctionA#>( , ) << std::endl;                  //11
+    std::cout << "Controller::control controlPoint1's multiplied values:\n" << Controller::control(&controlPoint1, &updatedValue) << std::endl;
     
-    U <#name4#>;
-    std::cout << "[member func] <#name4#>'s multiplied values: " << <#name4#>.<#memberFunction#>( &updatedValue ) << std::endl;
+    std::cout << std::endl;    
+    U controlPoint2;
+    std::cout << "controlMF controlPoint2's multiplied values:\n" << controlPoint2.controlMF(&updatedValue) << std::endl;
+
+    std::cout << std::endl;
 }
 
         
