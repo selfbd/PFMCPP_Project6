@@ -35,13 +35,10 @@ struct T
 
 struct MinHeight
 {
-    T* compare(T* a, T* b)
+    T* compare(T& a, T& b)
     {
-        if (a != nullptr && b != nullptr)
-        {
-            if( a->value < b->value ) return a;
-            if( a->value > b->value ) return b;
-        }
+        if( a.value < b.value ) return &a;
+        if( a.value > b.value ) return &b;
         return nullptr;
     }
 };
@@ -86,7 +83,7 @@ int main()
 
     std::cout << std::endl;
     MinHeight f;
-    auto* smaller = f.compare(&person1, &person2);
+    auto* smaller = f.compare(person1, person2);
     if (smaller == nullptr)
     {
         std::cout << "Compare result is null" << std::endl;
