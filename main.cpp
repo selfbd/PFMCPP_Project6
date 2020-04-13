@@ -25,6 +25,7 @@ send me a DM to check your pull request
 
 #include <iostream>
 #include <string>
+
 struct T
 {
     float value;
@@ -34,13 +35,10 @@ struct T
 
 struct MinHeight
 {
-    T* compare(T* a, T* b)
+    T* compare(T& a, T& b)
     {
-        if (a != nullptr && b != nullptr)
-        {
-            if( a->value < b->value ) return a;
-            if( a->value > b->value ) return b;
-        }
+        if( a.value < b.value ) return &a;
+        if( a.value > b.value ) return &b;
         return nullptr;
     }
 };
@@ -48,15 +46,10 @@ struct MinHeight
 struct U
 {
     float setpoint {0}, processVariable {0};
-    
-    float controlMF(float* setpointTarget)
+
+    float controlMF(float & setpointTarget)
     {
-        if (setpointTarget == nullptr)
-        {
-            std::cout << "setpointTarget is null" << std::endl;
-            return 0.f;
-        }
-        this->setpoint = *setpointTarget;
+        this->setpoint = setpointTarget;
         std::cout << "U's setpoint updated value: " << this->setpoint << std::endl;
         while(std::abs(this->processVariable - this->setpoint) > 0.001f )
         {
@@ -69,27 +62,17 @@ struct U
 
 struct Controller
 {
-    static float control(U* that, float* setpointTarget)
+    static float control(U& that, float& setpointTarget)
     {
-        if (that == nullptr)
+        std::cout << "U's setpoint value: " << that.setpoint << std::endl;
+        that.setpoint = setpointTarget;
+        std::cout << "U's setpoint updated value: " << that.setpoint << std::endl;
+        while(std::abs(that.processVariable - that.setpoint) > 0.001f )
         {
-            std::cout << "Control point input is null" << std::endl;
-            return 0.f;
+            that.processVariable += (std::abs(that.processVariable - that.setpoint))/2 ;
         }
-        if (setpointTarget == nullptr)
-        {
-            std::cout << "setpointTarget is null" << std::endl;
-            return 0.f;
-        }
-        std::cout << "U's setpoint value: " << that->setpoint << std::endl;
-        that->setpoint = *setpointTarget;
-        std::cout << "U's setpoint updated value: " << that->setpoint << std::endl;
-        while(std::abs(that->processVariable - that->setpoint) > 0.001f )
-        {
-            that->processVariable += (std::abs(that->processVariable - that->setpoint))/2 ;
-        }
-        std::cout << "U's processVariable updated value: " << that->processVariable << std::endl;
-        return that->processVariable * that->setpoint;
+        std::cout << "U's processVariable updated value: " << that.processVariable << std::endl;
+        return that.processVariable * that.setpoint;
     }
 };
 
@@ -97,10 +80,10 @@ int main()
 {
     T person1(76, "Neil");
     T person2(70, "Geddy");
-    
+
     std::cout << std::endl;
     MinHeight f;
-    auto* smaller = f.compare(&person1, &person2);
+    auto* smaller = f.compare(person1, person2);
     if (smaller == nullptr)
     {
         std::cout << "Compare result is null" << std::endl;
@@ -113,19 +96,11 @@ int main()
     std::cout << std::endl;
     U controlPoint1;
     float updatedValue = 5.f;
-    std::cout << "Controller::control controlPoint1's multiplied values:\n" << Controller::control(&controlPoint1, &updatedValue) << std::endl;
-    
+    std::cout << "Controller::control controlPoint1's multiplied values:\n" << Controller::control(controlPoint1, updatedValue) << std::endl;
+
     std::cout << std::endl;    
     U controlPoint2;
-    std::cout << "controlMF controlPoint2's multiplied values:\n" << controlPoint2.controlMF(&updatedValue) << std::endl;
+    std::cout << "controlMF controlPoint2's multiplied values:\n" << controlPoint2.controlMF(updatedValue) << std::endl;
 
     std::cout << std::endl;
 }
-
-        
-        
-        
-        
-        
-        
-        
